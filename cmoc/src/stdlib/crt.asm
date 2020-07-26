@@ -70,7 +70,8 @@ s_bss   IMPORT
         ENDC
 
 	IFDEF _COCO_OR_DRAGON_BASIC_
-	LDX	$A002			; system's current address for PUTCHR
+;	LDX	$A002			; system's current address for PUTCHR
+    LDX #$e987
 	ELSE
 	LEAX	PUTCHR,PCR
 	ENDC

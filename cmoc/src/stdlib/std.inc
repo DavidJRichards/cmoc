@@ -2,10 +2,12 @@
 
 
 PRINTF_FLOAT_SIZE	EQU	5	size of a %f argument
-LBUFMX			EQU	250	number of available bytes in LINBUF buffer
+;LBUFMX			EQU	250	number of available bytes in LINBUF buffer
+LBUFMX			EQU	127	number of available bytes in LINBUF buffer
 
 	IFDEF _COCO_OR_DRAGON_BASIC_
-LINBUF			EQU	$02DC		buffer where READLN stores line read from user
+;LINBUF			EQU	$02DC		buffer where READLN stores line read from user
+LINBUF			EQU	$0100		buffer where READLN stores line read from user
 TIMER			EQU	$0112		CoCo Basic 60 Hz 16 bit timer
 	ENDC
 

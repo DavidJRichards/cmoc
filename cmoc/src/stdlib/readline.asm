@@ -12,7 +12,14 @@ _readline
 	IFDEF _COCO_OR_DRAGON_BASIC_
 
 	IFDEF _COCO_BASIC_
-	JSR	$A390		CoCo Basic routine to read a line w/ cursor
+    LDX #$101
+    LDB #$7f
+    JSR $06
+    STB $100
+    ABX
+    CLR ,X
+
+*	JSR	$A390		CoCo Basic routine to read a line w/ cursor
 	ELSE
 	JSR	$B5C6		Dragon Basic routine to read a line w/ cursor
 	ENDC
