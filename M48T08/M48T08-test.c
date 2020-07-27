@@ -3,7 +3,7 @@
 /* 6809 cmoc compiler */
 /* cmoc patched for multicomp simon monitor */
 
-#pragma org 0x1000
+#pragma org 0xC000
 
 #include <cmoc.h>
 
@@ -12,7 +12,7 @@
 #define ENOSPC		28	/* No space left on device */
 #define EXIT_SUCCESS 0
 
-#define M48T08_RTC_ADDR     0x2ff8
+#define M48T08_RTC_ADDR     0xDff8
 
 #define M48T08_RTC_SET		0x80
 #define M48T08_RTC_READ		0x40
@@ -115,36 +115,54 @@ static int m48t08_set_time(struct m48t08_rtc *dev, struct tm *rtc)
 
     control = dev->control;
     dev->control = M48T08_RTC_SET | control; 
+
 	dev->year = (unsigned char)bin2bcd(yrs);
 	dev->month = bin2bcd((unsigned char)rtc->tm_mon + 1);
 	dev->date = bin2bcd((unsigned char)rtc->tm_mday);
+
 	dev->hour = bin2bcd((unsigned char)rtc->tm_hour);
 	dev->min = bin2bcd((unsigned char)rtc->tm_min);
 	dev->sec = bin2bcd((unsigned char)rtc->tm_sec);
-    dev->control = control; 
 
+    dev->control = control; 
 	return EXIT_SUCCESS;
 }
 #endif
 
+int getval(const char *prompt, int deflt)
+{
+	int val;
+	printf("%s %d ",prompt, deflt);
+	val = readword();
+	if(val == 0) val = deflt;
+	return val;
+}
+	
 int main(void)
 {
-#if 1  
-        clk.tm_hour = 21;
-        clk.tm_min = 00;
-        clk.tm_sec = 30;
-
-        clk.tm_mday = 25;
-        clk.tm_mon = 7;
-        clk.tm_year = /*1900+*/120;
-        m48t08_set_time(timekeeper, &clk);    
-        printf("CLock set");
-#endif
-
-    m48t08_read_time(timekeeper, tm);
+	int v;
+    m48t08_read_time(timekeeper, &clk);
     printf("\nRTC read time %04ld-%02d-%02d %02d/%02d/%02d\n",
 		tm->tm_year + 1900, tm->tm_mon, tm->tm_mday,
 		tm->tm_hour, tm->tm_min, tm->tm_sec);
-//    printf("\n");
+    printf("\n");
+
+	if(getval("Type any value to change clock:",0))
+	{
+		clk.tm_year = getval("Year",1900+tm->tm_year)-1900;
+		clk.tm_mon = getval("Month",tm->tm_mon);
+		clk.tm_mday = getval("Mday",tm->tm_mday);
+
+		clk.tm_hour = getval("Hour",tm->tm_hour);
+		clk.tm_min = getval("Minute",tm->tm_min);
+		clk.tm_sec = 0;//getval("Second",tm->tm_sec);
+	 
+		m48t08_set_time(timekeeper, &clk);    
+		printf("CLock set");
+		m48t08_read_time(timekeeper, tm);
+		printf("\nRTC read time %04ld-%02d-%02d %02d/%02d/%02d\n",
+			tm->tm_year + 1900, tm->tm_mon, tm->tm_mday,
+			tm->tm_hour, tm->tm_min, tm->tm_sec);
+	}
     return EXIT_SUCCESS;
 }
